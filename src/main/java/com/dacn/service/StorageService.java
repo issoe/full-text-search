@@ -19,8 +19,6 @@ public class StorageService {
 		if (storage.isPresent()) {
 			return storage.get().getFilename() + " -> " + storage.get().getIdDrive();
 		}
-		else return "fuck";
+		else return "not oke";
 	}
-
-  
 }

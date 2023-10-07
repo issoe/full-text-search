@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,42 +14,37 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dacn.service.GoogleDriveService;
 
-
-//import com.audiobook.audiobook.services.GoogleDriveService;
-
 @RestController
 public class AudioBookController {
     @Autowired
     private GoogleDriveService service;
-    
-//    @Autowired
-//    AudioBookController audioBookController;
-    @GetMapping("/test") 
-    public String test001() {
-    	return "testing oke";
-    }
 
     @GetMapping("/")
-//    @CrossOrigin(origins = "http://127.0.0.1:5173/")
-    public  String sample() throws IOException, GeneralSecurityException{
-//        return audioBookController.getAllAudio();
+    public String getAllFiles() throws IOException, GeneralSecurityException {
         return service.getfiles();
     }
-
-//    @PostMapping("/newaudio")
-//    @CrossOrigin(origins = "http://127.0.0.1:5173/")
-//    public  String upload(@RequestParam("audio") MultipartFile file) throws IOException, GeneralSecurityException{
-//        return audioBookController.uploadAudio(file);
-//    }
     
-
-//    public String getAllAudio() throws IOException, GeneralSecurityException{
-//        return service.getfiles();
-//    }
-//    
-//    public String uploadAudio(MultipartFile file) throws IOException, GeneralSecurityException{
-//        System.out.println(file.getOriginalFilename());
-//
-//        return service.uploadFile(file);
-//    }
+    @PostMapping("/upload")
+    @CrossOrigin(origins = "http://127.0.0.1:5173/")
+    public String upload(@RequestParam("file") MultipartFile file) throws IOException, GeneralSecurityException {
+        System.out.println(file.getOriginalFilename());
+        return service.uploadFile(file);
+    }
+    
+    @PostMapping("/get")
+    public String getFileById(@RequestParam String id) throws IOException, GeneralSecurityException {
+    	return service.getFileById(id);
+    }
+    
+    @PostMapping("/download")
+    public String downloadFileById(@RequestParam String id) throws IOException, GeneralSecurityException {
+    	Boolean success = service.downloadFile(id);
+    	if (success) return "ok";
+    	else return "not oke";
+    }
+    
+    @DeleteMapping("/file")
+    public String deleteFileById(@RequestParam String id) throws GeneralSecurityException, IOException {
+    	return service.deleteFileById(id);
+    }
 }

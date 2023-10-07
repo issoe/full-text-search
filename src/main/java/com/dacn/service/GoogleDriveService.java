@@ -1,5 +1,20 @@
 package com.dacn.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -15,18 +30,6 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 /* class to demonstrate use of Drive files list API */
 @Component
@@ -95,14 +98,14 @@ public class GoogleDriveService {
 //Using this code snippet you can do all drive functionality
 
   public  String getfiles() throws IOException, GeneralSecurityException {
-	  
 	    Drive service = getInstance();
-
+	    
 	    // Print the names and IDs for up to 10 files.
 	    FileList result = service.files().list()
 	        .setPageSize(10)
 	        .execute();
 	    List<File> files = result.getFiles();
+	    
 	    if (files == null || files.isEmpty()) {
 	      System.out.println("No files found.");
 	      return "No files found.";
@@ -110,4 +113,74 @@ public class GoogleDriveService {
 	      return files.toString();
 	    }
 	  }
+  	public String uploadFile(MultipartFile file) {
+	  try {
+	    System.out.println(file.getOriginalFilename());
+	     String folderId = "1EBVvBWqKI-NruWL98ToG4PuiTcYG6JkW";
+	     if (null != file) {
+	        File fileMetadata = new File();
+	        fileMetadata.setParents(Collections.singletonList(folderId));
+	        fileMetadata.setName(file.getOriginalFilename());
+	        File uploadFile = getInstance()
+	              .files()
+	              .create(fileMetadata, new InputStreamContent(
+	                    file.getContentType(),
+	                    new ByteArrayInputStream(file.getBytes()))
+	              )
+	              .setFields("id").execute();
+	              System.out.println(uploadFile);
+	        return uploadFile.getId();
+	     }
+	  } catch (Exception e) {
+	     System.out.printf("Error: "+ e);
+	  }
+	  return null;
+	}
+
+
+  	public String getFileById(String id) throws IOException, GeneralSecurityException {
+	    Drive service = getInstance();
+	    File file = service.files().get(id).execute();
+	    
+	    if (file == null || file.isEmpty()) {
+	      System.out.println("No files found.");
+	      return "No files found.";
+	    } else {
+	      return "Filename: " + id + " --> " + file.toString();
+	    }  		
+  	}
+  	
+  	public String deleteFileById(String id) throws GeneralSecurityException, IOException {
+  		try {
+  			Drive service = getInstance();
+  	  		service.files().delete(id).execute();
+  	  		return "Oke";
+  		} catch(Exception e) {
+  		     System.out.printf("Error: "+ e);  	
+  		}
+  		return null;
+  	}
+
+
+  	/**
+     * Download a Document file in PDF format.
+     *
+     * @param realFileId file ID of any workspace document format file.
+     * @return byte array stream if successful, {@code null} otherwise.
+     * @throws IOException if service account credentials file not found.
+  	 * @throws GeneralSecurityException 
+     */
+    public Boolean downloadFile(String realFileId) throws IOException, GeneralSecurityException {
+        try {
+        	String sDestinationPath = "../output/filename.pdf";
+            OutputStream oOutputStream = new FileOutputStream(sDestinationPath);
+            Drive service = getInstance();
+            service.files().get(realFileId).executeMediaAndDownloadTo(oOutputStream);
+            oOutputStream.flush();
+            oOutputStream.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 }

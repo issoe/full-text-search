@@ -172,7 +172,7 @@ public class GoogleDriveService {
      */
     public Boolean downloadFile(String realFileId) throws IOException, GeneralSecurityException {
         try {
-        	String sDestinationPath = "../output/filename.pdf";
+        	String sDestinationPath = "../output/Unknown_002.pdf";
             OutputStream oOutputStream = new FileOutputStream(sDestinationPath);
             Drive service = getInstance();
             service.files().get(realFileId).executeMediaAndDownloadTo(oOutputStream);

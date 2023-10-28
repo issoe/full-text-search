@@ -35,8 +35,11 @@ public class DriveController {
     
     @PostMapping("/upload")
     @CrossOrigin(origins = "http://127.0.0.1:5173/")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) throws IOException, GeneralSecurityException {
-    	if (service.uploadFile(file)) return EResponse.ok("Successfully uploaded");
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
+    								@RequestParam("upload_id") Integer upload_id,
+    								@RequestParam("upload_name") String upload_name
+    		) throws IOException, GeneralSecurityException {
+    	if (service.uploadFile(file, upload_id, upload_name)) return EResponse.ok("Successfully uploaded");
     	else return EResponse.notFound("Impossible to upload file");
     }
     

@@ -116,7 +116,7 @@ public class GoogleDriveService {
   	}
   
   
-  	public Boolean uploadFile(MultipartFile file) {
+  	public Boolean uploadFile(MultipartFile file, Integer upload_id, String upload_name) {
 	  try {
 	     if (null != file) {
 	        File fileMetadata = new File();
@@ -130,19 +130,17 @@ public class GoogleDriveService {
 	              )
 	              .setFields("id").execute();
 	        
-	              System.out.println(uploadFile.getId());
-	              
-	              FileEntity myFile = new FileEntity();
-
-	              myFile.setId_drive(uploadFile.getId());
-	              myFile.setFilename("Waiting from elastic");
-	              myFile.setIs_deleted(false);
-	              myFile.setUpload_id(-1);
-	              myFile.setUpload_name("Wating from Tan");
-	              myFile.setIntro("Wating from elastic");
-	              myFile.setTitle("Wating from elastic");
-	             
-	              fileRepository.save(myFile);
+            FileEntity myFile = new FileEntity();
+            myFile.setId_drive(uploadFile.getId());
+            myFile.setFilename(file.getOriginalFilename());
+            myFile.setIs_deleted(false);
+            myFile.setUpload_id(upload_id);
+            myFile.setUpload_name(upload_name);
+            myFile.setIntro("Wating from elastic");
+            myFile.setTitle("Wating from elastic");
+            fileRepository.save(myFile);
+            
+            System.out.println("[Successfully uploaded] File: '" + file.getOriginalFilename() + "' with id: '" + uploadFile.getId() + "'");
 	        return true;
 	     }
 	  } catch (Exception e) {
@@ -186,7 +184,7 @@ public class GoogleDriveService {
   	 * @throws GeneralSecurityException 
      */
     public Boolean downloadFile(String realFileId) throws IOException, GeneralSecurityException {
-        try {
+    	try {
         	String fileName = fileRepository.getFileNameByDriveId(realFileId);
         	if (fileName != null) {
         		String destinationPath = OUTPUT_PATH + fileName;        		
@@ -195,6 +193,7 @@ public class GoogleDriveService {
         		service.files().get(realFileId).executeMediaAndDownloadTo(oOutputStream);
         		oOutputStream.flush();
         		oOutputStream.close();
+        		System.out.println("[Successfully downloaded] Destination: '" + destinationPath + "'");
         		return true;
         	} else return false;
         } catch (IOException e) {

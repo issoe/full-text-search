@@ -8,13 +8,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dacn.entity.FileEntity;
+import com.dacn.repository.FileRepository;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -29,97 +35,92 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.FileList;;
 
-/* class to demonstrate use of Drive files list API */
 @Component
 public class GoogleDriveService {
-  /**
-   * Application name.
-   */
-  private static final String APPLICATION_NAME = "SearchApp";
-  /**
-   * Global instance of the JSON factory.
-   */
-  private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-  /**
-   * Directory to store authorization tokens for this application.
-   */
-  private static final String TOKENS_DIRECTORY_PATH = "tokens";
+	// Directory to store authorization tokens for this application.
+	private static final Integer PAGE_SIZE = 4;
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final String CREDENTIALS_FILE_PATH = "./credentials.json";
+    private static final String OUTPUT_PATH = "../output/";
+    private static final String FOLDER_ID = "1EBVvBWqKI-NruWL98ToG4PuiTcYG6JkW";
+    // Application name
+    private static final String APPLICATION_NAME = "SearchApp";
+    // Global instance of the JSON factory.
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+    
+    /**
+	 * Global instance of the scopes required by this quickstart.
+     * If modifying these scopes, delete your previously saved tokens/ folder.
+     */
+    private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_FILE);
 
-  /**
-   * Global instance of the scopes required by this quickstart.
-   * If modifying these scopes, delete your previously saved tokens/ folder.
-   */
-  private static final List<String> SCOPES =
-      Collections.singletonList(DriveScopes.DRIVE_FILE);
-  private static final String CREDENTIALS_FILE_PATH = "./credentials.json";
-
-  /**
-   * Creates an authorized Credential object.
-   *
-   * @param HTTP_TRANSPORT The network HTTP Transport.
-   * @return An authorized Credential object.
-   * @throws IOException If the credentials.json file cannot be found.
-   */
-  private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT)
-      throws IOException {
-    // Load client secrets.
-    InputStream in = GoogleDriveService.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
-    if (in == null) {
-      throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+    /**
+     * Creates an authorized Credential object.
+     *
+     * @param HTTP_TRANSPORT The network HTTP Transport.
+     * @return An authorized Credential object.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
+  
+    @Autowired
+    FileRepository fileRepository;
+  
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+	    // Load client secrets.
+	    InputStream in = GoogleDriveService.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+	    if (in == null) {
+	      throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+	    }
+	    GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+	    
+	    // Build flow and trigger user authorization request.
+	    GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+	    		.setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+	    		.setAccessType("offline").build();
+	    
+	    LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+	    Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+	    //returns an authorized Credential object.
+	    return credential;
     }
-    GoogleClientSecrets clientSecrets =
-        GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-    // Build flow and trigger user authorization request.
-    GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-        HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-        .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-        .setAccessType("offline")
-        .build();
-    LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-    Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
-    //returns an authorized Credential object.
-    return credential;
-  }
+	public Drive getInstance() throws GeneralSecurityException, IOException {
+		// Build a new authorized API client service.
+		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+		Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+				.setApplicationName(APPLICATION_NAME).build();
+		return service;
+	}
 
-  public Drive getInstance() throws GeneralSecurityException, IOException {
-      // Build a new authorized API client service.
-      final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-      Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-            .setApplicationName(APPLICATION_NAME)
-            .build();
-      return service;
-   }
-
-//Code needs to be implemented for the uploding a file to drive
-//uploading functions are as follows as 
-//Using this code snippet you can do all drive functionality
-
-  public  String getfiles() throws IOException, GeneralSecurityException {
-	    Drive service = getInstance();
+	public  String getfiles() throws IOException, GeneralSecurityException {
+		Drive service = getInstance();
 	    
 	    // Print the names and IDs for up to 10 files.
-	    FileList result = service.files().list()
-	        .setPageSize(10)
-	        .execute();
+	    FileList result = service.files().list().setPageSize(10).execute();
 	    List<File> files = result.getFiles();
 	    
 	    if (files == null || files.isEmpty()) {
 	      System.out.println("No files found.");
 	      return "No files found.";
-	    } else {
-	      return files.toString();
-	    }
-	  }
-  	public String uploadFile(MultipartFile file) {
+	    } else return files.toString();    
+	}
+
+  	// Done
+  	public Page<FileEntity> getFileByPageId(Integer pageId) throws IOException, GeneralSecurityException {
+        Sort sort = Sort.by(Sort.Order.desc("ids"));
+  		Pageable pageable = PageRequest.of(pageId, PAGE_SIZE, sort);
+  		Page<FileEntity> filePage = fileRepository.getFilesByPageId(pageable);
+  		return filePage;
+  	}
+  
+  
+  	public Boolean uploadFile(MultipartFile file) {
 	  try {
-	    System.out.println(file.getOriginalFilename());
-	     String folderId = "1EBVvBWqKI-NruWL98ToG4PuiTcYG6JkW";
 	     if (null != file) {
 	        File fileMetadata = new File();
-	        fileMetadata.setParents(Collections.singletonList(folderId));
+	        fileMetadata.setParents(Collections.singletonList(FOLDER_ID));
 	        fileMetadata.setName(file.getOriginalFilename());
 	        File uploadFile = getInstance()
 	              .files()
@@ -128,15 +129,28 @@ public class GoogleDriveService {
 	                    new ByteArrayInputStream(file.getBytes()))
 	              )
 	              .setFields("id").execute();
-	              System.out.println(uploadFile);
-	        return uploadFile.getId();
+	        
+	              System.out.println(uploadFile.getId());
+	              
+	              FileEntity myFile = new FileEntity();
+
+	              myFile.setId_drive(uploadFile.getId());
+	              myFile.setFilename("Waiting from elastic");
+	              myFile.setIs_deleted(false);
+	              myFile.setUpload_id(-1);
+	              myFile.setUpload_name("Wating from Tan");
+	              myFile.setIntro("Wating from elastic");
+	              myFile.setTitle("Wating from elastic");
+	             
+	              fileRepository.save(myFile);
+	        return true;
 	     }
 	  } catch (Exception e) {
 	     System.out.printf("Error: "+ e);
+	     return false;
 	  }
-	  return null;
+	  return false;
 	}
-
 
   	public String getFileById(String id) throws IOException, GeneralSecurityException {
 	    Drive service = getInstance();
@@ -161,7 +175,8 @@ public class GoogleDriveService {
   		return null;
   	}
 
-
+  	
+  	// Done
   	/**
      * Download a Document file in PDF format.
      *
@@ -172,13 +187,16 @@ public class GoogleDriveService {
      */
     public Boolean downloadFile(String realFileId) throws IOException, GeneralSecurityException {
         try {
-        	String sDestinationPath = "../output/Unknown_002.pdf";
-            OutputStream oOutputStream = new FileOutputStream(sDestinationPath);
-            Drive service = getInstance();
-            service.files().get(realFileId).executeMediaAndDownloadTo(oOutputStream);
-            oOutputStream.flush();
-            oOutputStream.close();
-            return true;
+        	String fileName = fileRepository.getFileNameByDriveId(realFileId);
+        	if (fileName != null) {
+        		String destinationPath = OUTPUT_PATH + fileName;        		
+        		OutputStream oOutputStream = new FileOutputStream(destinationPath);
+        		Drive service = getInstance();
+        		service.files().get(realFileId).executeMediaAndDownloadTo(oOutputStream);
+        		oOutputStream.flush();
+        		oOutputStream.close();
+        		return true;
+        	} else return false;
         } catch (IOException e) {
             return false;
         }

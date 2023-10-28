@@ -4,18 +4,21 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dacn.response.EResponse;
 import com.dacn.service.GoogleDriveService;
 
 @RestController
-public class AudioBookController {
+public class DriveController {
     @Autowired
     private GoogleDriveService service;
 
@@ -24,11 +27,17 @@ public class AudioBookController {
         return service.getfiles();
     }
     
+    @GetMapping("/page/{id}")
+    public ResponseEntity<?> getFilesByPageId(@PathVariable Integer id) throws IOException, GeneralSecurityException {
+    	return ResponseEntity.ok(service.getFileByPageId(id));
+    }
+    
+    
     @PostMapping("/upload")
     @CrossOrigin(origins = "http://127.0.0.1:5173/")
-    public String upload(@RequestParam("file") MultipartFile file) throws IOException, GeneralSecurityException {
-        System.out.println(file.getOriginalFilename());
-        return service.uploadFile(file);
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) throws IOException, GeneralSecurityException {
+    	if (service.uploadFile(file)) return EResponse.ok("Successfully uploaded");
+    	else return EResponse.notFound("Impossible to upload file");
     }
     
     @PostMapping("/get")
@@ -37,10 +46,9 @@ public class AudioBookController {
     }
     
     @PostMapping("/download")
-    public String downloadFileById(@RequestParam String id) throws IOException, GeneralSecurityException {
-    	Boolean success = service.downloadFile(id);
-    	if (success) return "ok";
-    	else return "not oke";
+    public ResponseEntity<?> downloadFileById(@RequestParam String id) throws IOException, GeneralSecurityException {
+    	if (service.downloadFile(id)) return EResponse.ok("Successfully downloaded");
+    	else return EResponse.notFound("Id drive not found");
     }
     
     @DeleteMapping("/file")

@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan({"com.dacn.controller", "com.dacn.service"})
+@ComponentScan({"com.dacn.controller", "com.dacn.service", "com.dacn.config"})
 @EntityScan("com.dacn.entity")
 @EnableJpaRepositories("com.dacn.repository")
 public class SearchApplication {

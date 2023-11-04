@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -162,16 +163,26 @@ public class GoogleDriveService {
 	    }  		
   	}
   	
-  	public String deleteFileById(String id) throws GeneralSecurityException, IOException {
-  		try {
-  			Drive service = getInstance();
-  	  		service.files().delete(id).execute();
-  	  		return "Oke";
-  		} catch(Exception e) {
-  		     System.out.printf("Error: "+ e);  	
+  	public Boolean deleteFileById(String id, Boolean isDrive) throws GeneralSecurityException, IOException {
+  		if (isDrive) {
+  	  		try {
+  	  			Drive service = getInstance();
+  	  	  		service.files().delete(id).execute();
+  	  	  		return true;
+  	  		} catch(Exception e) {
+  	  		     System.out.printf("Error: "+ e);  	
+  	  		     return false;
+  	  		}
+  		} else {
+  			Optional<FileEntity> myFile = fileRepository.findById(Integer.parseInt(id));
+  			if (myFile.isPresent()) {  				
+  				myFile.get().setIs_deleted(true);
+  				fileRepository.save(myFile.get());
+  				return true;
+  			} else return false;
   		}
-  		return null;
   	}
+	
 
   	
   	// Done

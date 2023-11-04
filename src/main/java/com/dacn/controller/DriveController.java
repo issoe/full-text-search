@@ -21,7 +21,8 @@ import com.dacn.service.GoogleDriveService;
 public class DriveController {
     @Autowired
     private GoogleDriveService service;
-
+    
+    // for testing
     @GetMapping("/")
     public String getAllFiles() throws IOException, GeneralSecurityException {
         return service.getfiles();
@@ -31,7 +32,6 @@ public class DriveController {
     public ResponseEntity<?> getFilesByPageId(@PathVariable Integer id) throws IOException, GeneralSecurityException {
     	return ResponseEntity.ok(service.getFileByPageId(id));
     }
-    
     
     @PostMapping("/upload")
     @CrossOrigin(origins = "http://127.0.0.1:5173/")
@@ -44,8 +44,8 @@ public class DriveController {
     }
     
     @PostMapping("/get")
-    public String getFileById(@RequestParam String id) throws IOException, GeneralSecurityException {
-    	return service.getFileById(id);
+    public String getFileById(@RequestParam String id_drive) throws IOException, GeneralSecurityException {
+    	return service.getFileById(id_drive);
     }
     
     @PostMapping("/download")
@@ -53,9 +53,10 @@ public class DriveController {
     	if (service.downloadFile(id)) return EResponse.ok("Successfully downloaded");
     	else return EResponse.notFound("Id drive not found");
     }
-    
+
     @DeleteMapping("/file")
-    public String deleteFileById(@RequestParam String id) throws GeneralSecurityException, IOException {
-    	return service.deleteFileById(id);
+    public ResponseEntity<?> deleteFileById(@RequestParam String id) throws GeneralSecurityException, IOException {
+    	if (service.deleteFileById(id, false)) return EResponse.ok("Successfully deleted id:" + id + "in database");
+    	else return EResponse.notFound("Id not found");
     }
 }

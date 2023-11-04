@@ -20,11 +20,11 @@ public class FileEntity {
 	@Column(name="is_deleted")
 	private Boolean is_deleted;
 	
-	@Column(name="upload_id")
-	private Integer upload_id;
+	@Column(name="upload_id_firebase")
+	private String upload_id_firebase;
 
-	@Column(name="upload_name")
-	private String upload_name;
+	@Column(name="upload_mail")
+	private String upload_mail;
 
 	@Column(name="intro")
 	private String intro;

@@ -36,10 +36,10 @@ public class DriveController {
     @PostMapping("/upload")
     @CrossOrigin(origins = "http://127.0.0.1:5173/")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
-    								@RequestParam("upload_id") Integer upload_id,
-    								@RequestParam("upload_name") String upload_name
+    								@RequestParam("upload_id") String upload_id_firebase,
+    								@RequestParam("upload_name") String upload_mail
     		) throws IOException, GeneralSecurityException {
-    	if (service.uploadFile(file, upload_id, upload_name)) return EResponse.ok("Successfully uploaded");
+    	if (service.uploadFile(file, upload_id_firebase, upload_mail)) return EResponse.ok("Successfully uploaded");
     	else return EResponse.notFound("Impossible to upload file");
     }
     
@@ -56,7 +56,7 @@ public class DriveController {
 
     @DeleteMapping("/file")
     public ResponseEntity<?> deleteFileById(@RequestParam String id) throws GeneralSecurityException, IOException {
-    	if (service.deleteFileById(id, false)) return EResponse.ok("Successfully deleted id:" + id + "in database");
-    	else return EResponse.notFound("Id not found");
+    	if (service.deleteFileById(id, false)) return EResponse.ok("Id = " + id + " was deleted");
+    	else return EResponse.notFound("Id not found, or deleted");
     }
 }

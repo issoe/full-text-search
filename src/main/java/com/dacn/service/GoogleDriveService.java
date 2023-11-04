@@ -41,7 +41,7 @@ import com.google.api.services.drive.model.FileList;;
 @Component
 public class GoogleDriveService {
 	// Directory to store authorization tokens for this application.
-	private static final Integer PAGE_SIZE = 4;
+	private static final Integer PAGE_SIZE = 10;
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final String CREDENTIALS_FILE_PATH = "./credentials.json";
     private static final String OUTPUT_PATH = "../output/";
@@ -117,7 +117,7 @@ public class GoogleDriveService {
   	}
   
   
-  	public Boolean uploadFile(MultipartFile file, Integer upload_id, String upload_name) {
+  	public Boolean uploadFile(MultipartFile file, String id_firebase, String upload_mail) {
 	  try {
 	     if (null != file) {
 	        File fileMetadata = new File();
@@ -135,8 +135,8 @@ public class GoogleDriveService {
             myFile.setId_drive(uploadFile.getId());
             myFile.setFilename(file.getOriginalFilename());
             myFile.setIs_deleted(false);
-            myFile.setUpload_id(upload_id);
-            myFile.setUpload_name(upload_name);
+            myFile.setUpload_id_firebase(id_firebase);
+            myFile.setUpload_mail(upload_mail);
             myFile.setIntro("Wating from elastic");
             myFile.setTitle("Wating from elastic");
             fileRepository.save(myFile);
@@ -175,7 +175,7 @@ public class GoogleDriveService {
   	  		}
   		} else {
   			Optional<FileEntity> myFile = fileRepository.findById(Integer.parseInt(id));
-  			if (myFile.isPresent()) {  				
+  			if (myFile.isPresent() && (myFile.get().getIs_deleted() == false)) {  				
   				myFile.get().setIs_deleted(true);
   				fileRepository.save(myFile.get());
   				return true;

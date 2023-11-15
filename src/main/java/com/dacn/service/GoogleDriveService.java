@@ -43,7 +43,7 @@ public class GoogleDriveService {
 	// Directory to store authorization tokens for this application.
 	private static final Integer PAGE_SIZE = 10;
     private static final String TOKENS_DIRECTORY_PATH = "./src/main/java/com/dacn/service";
-    private static final String CREDENTIALS_FILE_PATH = "./credentials.json";
+    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
 //    private static final String CREDENTIALS_FILE_PATH = "../tokens/credentials.json";    
     private static final String OUTPUT_PATH = "../output/";
     private static final String FOLDER_ID = "1EBVvBWqKI-NruWL98ToG4PuiTcYG6JkW";

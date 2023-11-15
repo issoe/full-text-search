@@ -37,7 +37,7 @@ public class DriveController {
     @CrossOrigin(origins = "http://127.0.0.1:5173/")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
     								@RequestParam("upload_id") String upload_id_firebase,
-    								@RequestParam("upload_name") String upload_mail
+    								@RequestParam("upload_mail") String upload_mail
     		) throws IOException, GeneralSecurityException {
     	if (service.uploadFile(file, upload_id_firebase, upload_mail)) return EResponse.ok("Successfully uploaded");
     	else return EResponse.notFound("Impossible to upload file");

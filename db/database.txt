@@ -26,3 +26,41 @@ VALUES
 ('1sphq_L2HDCqAz-j1pZ110syCAtljQuML', '19120649-19120670.pdf', FALSE, '5oKlP7sV6Xh3YtNcWm', 'khanhpq@gmail.com', 'Introduction for searching app', 'Searching app 010', '2022-11-23'),
 ('1fRxXXG3CNK578Otbw8AoZeZnDrvK12_s', 'ASE_Chap2.pdf', FALSE, '5oKlP7sV6Xh3YtNcWm', 'khanhpq@gmail.com', 'Introduction for searching app', 'Searching app 010', '2022-11-23'),
 ('0fQzq7bg1S2ljS4c6g38CfwEpxOAtAu1', 'ASE_Chap1.pdf', FALSE, '5oKlP7sV6Xh3YtNcWm', 'khanhpq@gmail.com', 'Introduction for searching app', 'Searching app 010', '2022-11-23');
+
+
+CREATE TABLE history (
+	ids SERIAL PRIMARY KEY,
+	keyword VARCHAR(50),
+	user_id VARCHAR(500),
+	vote INTEGER
+);
+
+
+INSERT INTO history (keyword, user_id, vote) VALUES 
+('data', 'khanhpq@gmail.com', 1),
+('document', 'khanhpq@gmail.com', 1),
+('machine learning', 'khanhpq@gmail.com', 1),
+('economy', 'khanhpq@gmail.com', 0),
+('business', 'khanhpq@gmail.com', 1),
+('how to create book', 'khanhpq@gmail.com', 0),
+('book', 'khanhpq@gmail.com', 1),
+('reading book', 'khanhpq@gmail.com', 1),
+('songoku anime', 'khanhpq@gmail.com', -1),
+('computer science', 'khanhpq@gmail.com', 1),
+('security information', 'khanhpq@gmail.com', 0),
+('hacker', 'khanhpq@gmail.com', 1),
+('fibonacy', 'tan@gmail.com', 1),
+('finance', 'tan@gmail.com', 0),
+('bitcoin', 'tan@gmail.com', 1),
+('blockchain', 'tan@gmail.com', 1),
+('Java language', 'tan@gmail.com', -1),
+('facebook lite', 'tan@gmail.com', 1),
+('Instagram-dennphilong177', 'tan@gmail.com', 1),
+('business', 'tan@gmail.com', 0),
+('business', 'tan@gmail.com', 1),
+('economy', 'tan@gmail.com', 1),
+('data', 'tan@gmail.com', 1),
+('data', 'ngoctan@gmail.com', 1),
+('data', 'ngoctan@gmail.com', 1),
+('data', 'ngoctan@gmail.com', 1);
+

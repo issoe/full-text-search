@@ -41,7 +41,7 @@ import com.google.api.services.drive.model.FileList;;
 @Component
 public class GoogleDriveService {
 	// Directory to store authorization tokens for this application.
-	private static final Integer PAGE_SIZE = 6;
+	private static final Integer PAGE_SIZE = 8;
     private static final String TOKENS_DIRECTORY_PATH = "./src/main/java/com/dacn/service";
     private static final String CREDENTIALS_FILE_PATH = "credentials.json";
 //    private static final String CREDENTIALS_FILE_PATH = "../tokens/credentials.json";    

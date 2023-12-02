@@ -31,4 +31,7 @@ public class FileEntity {
 	
 	@Column(name="title")
 	private String title;
+	
+	@Column(name="create_on")
+	private String create_on;
 }

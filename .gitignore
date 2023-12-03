@@ -1,36 +1,24 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# dependencies
+/front-end-search/node_modules
+/front-end-search/.pnp
+/front-end-search.pnp.js
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# testing
+/front-end-search/coverage
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# production
+/front-end-search/build
 
-### VS Code ###
-.vscode/
+# misc
+/front-end-search/.DS_Store
+/front-end-search/.env.local
+/front-end-search/.env.development.local
+/front-end-search/.env.test.local
+/front-end-search/.env.production.local
+/front-end-search/.env
 
-# More
-.project
+/front-end-search/npm-debug.log*
+/front-end-search/yarn-debug.log*
+/front-end-search/yarn-error.log*
